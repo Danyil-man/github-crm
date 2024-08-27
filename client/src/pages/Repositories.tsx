@@ -6,7 +6,15 @@ import {
   getAllRepositories,
   removeRepoById,
 } from "../store/repository/repositorySlice";
-import { Button, Pagination, Table } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Pagination,
+  Table,
+} from "antd";
 import { formatDate } from "../helpers/formatDate";
 
 interface IRepositories {
@@ -15,6 +23,8 @@ interface IRepositories {
 
 const Repositories: FC<IRepositories> = ({ limit = 5 }) => {
   const dispatch = useAppDispatch();
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [form] = Form.useForm();
   const { repositories, total } = useAppSelector(
     (state: RootState) => state.repository
   );
@@ -32,6 +42,24 @@ const Repositories: FC<IRepositories> = ({ limit = 5 }) => {
     );
     dispatch(getAllRepositories(response));
     setCurrentPage(page);
+  };
+
+  const handleAddRepository = async (values: { repoPath: string }) => {
+    try {
+      await RepositoryService.addNewRepository(values.repoPath);
+      notification.success({
+        message: "Repository Added",
+        description: `Repository ${values.repoPath} has been added successfully.`,
+      });
+      form.resetFields();
+      setIsModalVisible(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      notification.error({
+        message: "Add Repository Failed",
+        description: `Failed to add repository: ${e?.response?.data.message}`,
+      });
+    }
   };
 
   const columns = [
@@ -109,6 +137,13 @@ const Repositories: FC<IRepositories> = ({ limit = 5 }) => {
 
   return (
     <div className="repositories-page">
+      <Button
+        type="primary"
+        onClick={() => setIsModalVisible(true)}
+        style={{ marginBottom: 16 }}
+      >
+        Add Repository
+      </Button>
       <Table
         dataSource={repositories}
         columns={columns}
@@ -123,6 +158,29 @@ const Repositories: FC<IRepositories> = ({ limit = 5 }) => {
         onChange={handleChangePage}
         showSizeChanger={false}
       />
+      <Modal
+        title="Add New Repository"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+      >
+        <Form form={form} onFinish={handleAddRepository} layout="vertical">
+          <Form.Item
+            name="repoPath"
+            label="Repository Path"
+            rules={[
+              { required: true, message: "Please input the repository path!" },
+            ]}
+          >
+            <Input placeholder="e.g., owner/repository_name" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Add Repository
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

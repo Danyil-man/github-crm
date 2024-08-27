@@ -11,6 +11,10 @@ export const RepositoryService = {
     );
     return data;
   },
+  async addNewRepository(path: string) {
+    const { data } = await instanceApi.post(`/repositories`, { path: path });
+    return data;
+  },
   async removeRepoById(id: string) {
     const { data } = await instanceApi.delete(`/repositories/${id}`);
     return data;

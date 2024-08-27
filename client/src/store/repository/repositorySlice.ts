@@ -20,6 +20,10 @@ export const repositorySlice = createSlice({
       state.repositories = action.payload.repositories;
       state.total = action.payload.total;
     },
+    addNewRepository: (state, action: PayloadAction<IRepository>) => {
+      state.repositories.push(action.payload);
+      state.total = state.total + 1;
+    },
     removeRepoById: (state, action: PayloadAction<string>) => {
       state.repositories = state.repositories.filter(
         (repo) => repo._id.toString() !== action.payload

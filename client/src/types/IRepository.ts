@@ -10,6 +10,10 @@ export type IRepository = {
   createdAt: Date;
 };
 
+export type IRepositoryDto = {
+  path: string;
+};
+
 export type IRepositoryResponse = {
   repositories: IRepository[];
   total: number;

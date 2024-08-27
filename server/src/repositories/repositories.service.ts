@@ -10,6 +10,7 @@ import { Repository, RepositoryDocument } from './entities/repository.entity';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/user/entities/user.entity';
 import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RepositoriesService {
@@ -18,6 +19,7 @@ export class RepositoriesService {
     private readonly repositoryModel: Model<RepositoryDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    private readonly configService: ConfigService,
   ) {}
   async create(createRepositoryDto: CreateRepositoryDto, currentUser: IUser) {
     const githubRepoData = await this.fetchGitHubRepoData(
@@ -82,12 +84,13 @@ export class RepositoriesService {
   }
 
   private async fetchGitHubRepoData(repoPath: string) {
+    const gh_token = this.configService.get('GIT_HUB_TOKEN');
     try {
       const response = await axios.get(
         `https://api.github.com/repos/${repoPath}`,
         {
           headers: {
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer ${gh_token}`,
             'Content-Type': 'application/json',
           },
         },
