@@ -119,8 +119,6 @@ const Repositories: FC<IRepositories> = ({ limit = 5 }) => {
     },
   ];
 
-  console.log("repos", repositories);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
